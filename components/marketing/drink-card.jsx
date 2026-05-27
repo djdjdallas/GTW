@@ -9,20 +9,25 @@ export function DrinkCard({ drink }) {
   return (
     <div className="group overflow-hidden rounded-xl border border-border bg-card">
       <div
-        className="relative flex aspect-square items-end p-5"
+        className="relative flex aspect-square items-end justify-start overflow-hidden p-5"
         style={{ backgroundColor: drink.color_hex || "#f1eee6" }}
       >
+        {/* Bottle photo centered on the juice color. The color shows around the
+            edges so each card keeps its identity, and stays as the fallback if
+            the photo is missing. object-contain keeps the whole bottle visible.
+            (No client-side error handler here: this is a Server Component, so
+            DOM event handlers can't be attached.) */}
         {drink.image_url ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={drink.image_url}
             alt={drink.name}
-            className="absolute inset-0 h-full w-full object-cover"
+            className="absolute inset-0 z-0 m-auto h-[88%] w-auto object-contain"
           />
         ) : null}
         {drink.tag ? (
           <span
-            className="relative rounded-full bg-white/85 px-3 py-1 text-xs font-medium"
+            className="relative z-10 rounded-full bg-white/85 px-3 py-1 text-xs font-medium"
             style={{ color: drink.text_color_hex || "#0a0a0a" }}
           >
             {drink.tag}

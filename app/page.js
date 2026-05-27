@@ -3,6 +3,8 @@ import { ArrowRight } from "lucide-react";
 import { SiteHeader } from "@/components/marketing/site-header";
 import { Footer } from "@/components/marketing/footer";
 import { DrinkCard } from "@/components/marketing/drink-card";
+import { HomeSpinWheel } from "@/components/marketing/home-spin-wheel";
+import { HomeSpinWheelEditorial } from "@/components/marketing/home-spin-wheel-editorial";
 import { FaqAccordion } from "@/components/marketing/faq-accordion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -16,8 +18,14 @@ const STEPS = [
   { n: "03", title: "Pick up daily", body: "Show your code at the counter. Pressed at five, picked up by nine." },
 ];
 
-export default async function HomePage() {
+export default async function HomePage({ searchParams }) {
   const drinks = await getDrinks();
+
+  // The editorial slideshow is the default homepage wheel. The original 3D GSAP
+  // carousel is kept reachable at ?wheel=carousel for comparison.
+  const { wheel } = (await searchParams) ?? {};
+  const SpinWheelVariant =
+    wheel === "carousel" ? HomeSpinWheel : HomeSpinWheelEditorial;
 
   return (
     <div className="min-h-screen">
@@ -65,6 +73,9 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Spin wheel preview (A/B variant selected above) */}
+      <SpinWheelVariant />
 
       {/* Featured drinks */}
       <section className="mx-auto max-w-[1200px] px-6 py-20 md:py-24">
