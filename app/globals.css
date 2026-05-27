@@ -111,3 +111,15 @@ body {
   font-weight: 500;
   color: var(--brand-slate);
 }
+
+/* Gentle left-right nudge for the mobile "swipe" hint on the spin wheel. */
+@keyframes swipe-nudge {
+  0%, 100% { transform: translateX(-4px); }
+  50% { transform: translateX(4px); }
+}
+.animate-swipe-nudge {
+  animation: swipe-nudge 1.4s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-swipe-nudge { animation: none; }
+}

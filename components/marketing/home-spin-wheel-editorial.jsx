@@ -23,6 +23,7 @@ const SWIPE_THRESHOLD = 50; // px before a drag counts as a swipe
 export function HomeSpinWheelEditorial() {
   const [drinks, setDrinks] = useState(SEED_DRINKS);
   const [idx, setIdx] = useState(0);
+  const [showSwipeHint, setShowSwipeHint] = useState(false);
   const stageRef = useRef(null);
   const bottlesRef = useRef([]);
   const infoRef = useRef(null);
@@ -57,9 +58,32 @@ export function HomeSpinWheelEditorial() {
       const n = ((target % drinks.length) + drinks.length) % drinks.length;
       prevIdxRef.current = idx;
       setIdx(n);
+      setShowSwipeHint(false); // any navigation dismisses the hint
     },
     [drinks.length, idx]
   );
+
+  // Show a one-time "swipe" hint on mobile when the wheel scrolls into view.
+  // It auto-dismisses after a few seconds (or sooner, on first interaction).
+  useEffect(() => {
+    const el = stageRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    let hideTimer;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        io.disconnect();
+        setShowSwipeHint(true);
+        hideTimer = setTimeout(() => setShowSwipeHint(false), 4000);
+      },
+      { threshold: 0.5 }
+    );
+    io.observe(el);
+    return () => {
+      io.disconnect();
+      clearTimeout(hideTimer);
+    };
+  }, []);
 
   const prev = useCallback(() => goto(idx - 1), [idx, goto]);
   const next = useCallback(() => goto(idx + 1), [idx, goto]);
@@ -220,6 +244,32 @@ export function HomeSpinWheelEditorial() {
                 ) : null}
               </div>
             ))}
+          </div>
+
+          {/* Mobile-only swipe hint: fades in when the wheel scrolls into view. */}
+          <div
+            aria-hidden="true"
+            className={`pointer-events-none absolute bottom-1 left-1/2 -translate-x-1/2 transition-opacity duration-500 md:hidden ${
+              showSwipeHint ? "opacity-100" : "opacity-0"
+            }`}
+          >
+            <span className="inline-flex items-center gap-2 rounded-full bg-[#173404]/85 px-3.5 py-1.5 text-[11px] font-medium uppercase tracking-[0.18em] text-[#FAF7F0] backdrop-blur">
+              <svg
+                viewBox="0 0 24 24"
+                width="16"
+                height="16"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="animate-swipe-nudge"
+              >
+                <path d="M9 6 L4 12 L9 18" />
+                <path d="M15 6 L20 12 L15 18" />
+              </svg>
+              Swipe to browse
+            </span>
           </div>
         </div>
 
